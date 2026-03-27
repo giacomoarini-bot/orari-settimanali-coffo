@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Orari Settimanali</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: #1a1a2e;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px 12px 48px;
+  font-family: Arial, sans-serif;
+}
+h1 {
+  font-size: 1.4rem;
+  font-weight: 900;
+  letter-spacing: 3px;
+  color: #e8e0d0;
+  margin-bottom: 4px;
+  text-align: center;
+}
+.subtitle {
+  font-size: 0.7rem;
+  color: #6b7280;
+  margin-bottom: 18px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  text-align: center;
+}
+.card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 10px;
+  width: 100%;
+  max-width: 960px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+table {
+  border-collapse: collapse;
+  min-width: 520px;
+  width: 100%;
+}
+thead th {
+  border: 2px solid #444;
+  text-align: center;
+  background: #fff;
+  padding: 0;
+  min-width: 80px;
+}
+thead th.wk { background: #7dc87d; }
+thead th:first-child {
+  min-width: 90px;
+  font-size: 0.78rem;
+  font-weight: 900;
+  padding: 8px 4px;
+}
+thead th:last-child {
+  min-width: 36px;
+  width: 36px;
+  background: #fff;
+  border: none;
+}
+.th-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 5px 2px;
+  gap: 1px;
+}
+.th-day {
+  font-size: 0.58rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  color: #333;
+}
+input.th-num {
+  font-size: 1.2rem;
+  font-weight: 900;
+  border: none;
+  border-bottom: 1px solid transparent;
+  background: transparent;
+  text-align: center;
+  outline: none;
+  width: 42px;
+  padding: 0;
+  color: #111;
+  font-family: Arial, sans-serif;
+}
+input.th-num:focus { border-bottom: 2px solid #2563eb; }
+
+tbody td {
+  border: 2px solid #444;
+  text-align: center;
+  height: 58px;
+  padding: 0;
+}
+/* Name cell — editable */
+tbody td.nc {
+  padding: 0;
+  background: #fff;
+  white-space: nowrap;
+  min-width: 90px;
+}
+tbody td.nc input {
+  width: 100%;
+  height: 58px;
+  border: none;
+  background: transparent;
+  text-align: center;
+  font-size: 1rem;
+  font-weight: 900;
+  font-family: Arial, sans-serif;
+  outline: none;
+  padding: 0 4px;
+  color: #111;
+  -webkit-appearance: none;
+  display: block;
+  text-transform: uppercase;
+}
+tbody td.nc input:focus { box-shadow: inset 0 0 0 2px rgba(37,99,235,0.4); }
+
+tbody td input.ci {
+  width: 100%;
+  height: 58px;
+  border: none;
+  background: transparent;
+  text-align: center;
+  font-size: 1.15rem;
+  font-weight: 900;
+  font-family: Arial, sans-serif;
+  outline: none;
+  padding: 0;
+  color: #111;
+  display: block;
+  -webkit-appearance: none;
+  appearance: none;
+}
+tbody td input.ci:focus { box-shadow: inset 0 0 0 2px rgba(37,99,235,0.45); }
+
+/* Remove button cell */
+tbody td.rm-cell {
+  border: none;
+  background: transparent;
+  width: 36px;
+  min-width: 36px;
+  padding: 0 2px;
+}
+button.rm-btn {
+  background: #fee2e2;
+  color: #dc2626;
+  border: none;
+  border-radius: 6px;
+  width: 28px;
+  height: 28px;
+  font-size: 1rem;
+  font-weight: 900;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-appearance: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: auto;
+}
+
+.c-off  { background: #ffffff; }
+.c-wd   { background: #f9e07a; }
+.c-we   { background: #a8d97a; }
+.c-al   { background: #f08080; }
+
+/* Add employee row */
+.add-row {
+  margin-top: 10px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  width: 100%;
+  max-width: 960px;
+}
+.add-row input {
+  flex: 1;
+  padding: 11px 14px;
+  border: 2px solid #334155;
+  border-radius: 10px;
+  background: #0f172a;
+  color: #e2e8f0;
+  font-family: Arial, sans-serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  outline: none;
+  text-transform: uppercase;
+  -webkit-appearance: none;
+}
+.add-row input::placeholder { color: #475569; text-transform: none; }
+.add-row input:focus { border-color: #3b82f6; }
+.add-row button {
+  background: #3b82f6;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 11px 18px;
+  font-family: Arial, sans-serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-appearance: none;
+  min-height: 44px;
+}
+
+.controls {
+  margin-top: 10px;
+  display: flex;
+  gap: 10px;
+  width: 100%;
+  max-width: 960px;
+}
+button.ctrl {
+  flex: 1;
+  padding: 14px 8px;
+  border: none;
+  border-radius: 10px;
+  font-family: Arial, sans-serif;
+  font-size: 0.92rem;
+  font-weight: 700;
+  cursor: pointer;
+  min-height: 50px;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-appearance: none;
+}
+#btn-gen   { background: #16a34a; color: #fff; }
+#btn-reset { background: #f1f5f9; color: #374151; }
+
+.tip { margin-top: 8px; font-size: 0.7rem; color: #6b7280; text-align: center; }
+
+/* Preview */
+#pv {
+  display: none;
+  position: fixed; top:0; left:0; right:0; bottom:0;
+  background: rgba(0,0,0,0.85);
+  z-index: 200;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 14px;
+  padding: 16px;
+}
+#pv.show { display: flex; }
+#pv img { max-width: 100%; max-height: 65vh; border-radius: 8px; }
+#pv .note { color: #ccc; font-size: 0.75rem; text-align: center; font-family: Arial; }
+#pv .btns { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+#pv .btns a {
+  background: #16a34a; color: #fff;
+  padding: 12px 24px; border-radius: 10px;
+  font-family: Arial; font-weight: 700; font-size: 0.9rem; text-decoration: none;
+}
+#pv .btns button {
+  background: #e5e7eb; color: #374151;
+  flex: none; padding: 12px 18px; font-size: 0.9rem;
+  border: none; border-radius: 10px; font-family: Arial; font-weight: 700; cursor: pointer;
+}
+</style>
+</head>
+<body>
+
+<h1>ORARI SETTIMANALI</h1>
+<p class="subtitle">Tocca una cella per modificarla</p>
+
+<div class="card">
+<table id="tbl">
+<thead>
+<tr>
+  <th>Dipendente</th>
+  <th><div class="th-wrap"><span class="th-day">Martedì</span><input class="th-num" type="text" value="24" maxlength="4"></div></th>
+  <th><div class="th-wrap"><span class="th-day">Mercoledì</span><input class="th-num" type="text" value="25" maxlength="4"></div></th>
+  <th><div class="th-wrap"><span class="th-day">Giovedì</span><input class="th-num" type="text" value="26" maxlength="4"></div></th>
+  <th><div class="th-wrap"><span class="th-day">Venerdì</span><input class="th-num" type="text" value="27" maxlength="4"></div></th>
+  <th class="wk"><div class="th-wrap"><span class="th-day">Sabato</span><input class="th-num" type="text" value="28" maxlength="4"></div></th>
+  <th class="wk"><div class="th-wrap"><span class="th-day">Domenica</span><input class="th-num" type="text" value="29" maxlength="4"></div></th>
+  <th></th>
+</tr>
+</thead>
+<tbody id="tbody">
+</tbody>
+</table>
+</div>
+
+<!-- Add employee -->
+<div class="add-row">
+  <input type="text" id="new-name" placeholder="Nome dipendente..." maxlength="12">
+  <button id="btn-add">+ Aggiungi</button>
+</div>
+
+<div class="controls">
+  <button class="ctrl" id="btn-reset">↺ Reset</button>
+  <button class="ctrl" id="btn-gen">📷 Genera immagine</button>
+</div>
+<p class="tip">Tieni premuta l'immagine per salvarla nel rullino</p>
+
+<div id="pv">
+  <img id="pv-img" src="" alt="Orari">
+  <p class="note">Tieni premuta l'immagine → Salva nel rullino</p>
+  <div class="btns">
+    <a id="pv-dl" href="" download="orari.jpg">⬇ Scarica</a>
+    <button id="pv-close">✕ Chiudi</button>
+  </div>
+</div>
+
+<script>
+var COLS = 6; // number of day columns
+var BG = { 'c-off':'#ffffff', 'c-wd':'#f9e07a', 'c-we':'#a8d97a', 'c-al':'#f08080' };
+
+var DEFAULT = [
+  { name:'MANU',    vals:['—','—','—','15:00','10:00','10:00'], alert:false },
+  { name:'RISTE',   vals:['—','—','—','—','11:00','11:00'],     alert:false },
+  { name:'AURINDA', vals:['—','—','—','—','—','—'],             alert:false },
+  { name:'JACK',    vals:['17:00','17:00','17:00','—','17:00','15:00'], alert:false },
+  { name:'LORY',    vals:['—','—','—','16:00','16:00','17:00'], alert:false },
+  { name:"GIO'",    vals:['—','—','—','—','18:00','18:00'],     alert:true  }
+];
+
+function cellClass(ci, val, isAlert) {
+  if (!val || val.trim() === '—') return 'c-off';
+  if (ci >= 4) return isAlert ? 'c-al' : 'c-we';
+  return 'c-wd';
+}
+
+function wireNameInput(inp) {
+  inp.addEventListener('focus', function() { setTimeout(function(){ inp.select(); }, 0); });
+}
+
+function wireCell(td, ci, isAlertFn) {
+  var inp = td.querySelector('input.ci');
+  inp.addEventListener('focus', function() {
+    if (inp.value === '—') inp.value = '';
+    setTimeout(function(){ inp.select(); }, 0);
+  });
+  inp.addEventListener('blur', function() {
+    if (!inp.value.trim()) { inp.value = '—'; td.className = 'c-off'; }
+  });
+  inp.addEventListener('input', function() {
+    td.className = cellClass(ci, inp.value, isAlertFn());
+  });
+}
+
+function addRow(name, vals, isAlert) {
+  var tbody = document.getElementById('tbody');
+  var tr = document.createElement('tr');
+
+  // Name cell (editable)
+  var ntd = document.createElement('td');
+  ntd.className = 'nc';
+  var ninp = document.createElement('input');
+  ninp.type = 'text';
+  ninp.value = name.toUpperCase();
+  ninp.maxLength = 12;
+  ntd.appendChild(ninp);
+  wireNameInput(ninp);
+  tr.appendChild(ntd);
+
+  // Day cells
+  for (var ci = 0; ci < COLS; ci++) {
+    (function(ci) {
+      var val = vals ? vals[ci] : '—';
+      var td = document.createElement('td');
+      td.className = cellClass(ci, val, isAlert);
+      var inp = document.createElement('input');
+      inp.className = 'ci';
+      inp.type = 'text';
+      inp.value = val;
+      td.appendChild(inp);
+      wireCell(td, ci, function() { return ninp.value.trim() === "GIO'" || isAlert; });
+      tr.appendChild(td);
+    })(ci);
+  }
+
+  // Remove button cell
+  var rtd = document.createElement('td');
+  rtd.className = 'rm-cell';
+  var rbtn = document.createElement('button');
+  rbtn.className = 'rm-btn';
+  rbtn.textContent = '×';
+  rbtn.addEventListener('click', function() {
+    if (tbody.querySelectorAll('tr').length > 1) {
+      tbody.removeChild(tr);
+    } else {
+      alert('Deve esserci almeno un dipendente.');
+    }
+  });
+  rtd.appendChild(rbtn);
+  tr.appendChild(rtd);
+
+  tbody.appendChild(tr);
+}
+
+function buildDefault() {
+  document.getElementById('tbody').innerHTML = '';
+  for (var i = 0; i < DEFAULT.length; i++) {
+    addRow(DEFAULT[i].name, DEFAULT[i].vals, DEFAULT[i].alert);
+  }
+}
+
+buildDefault();
+
+// Header num inputs
+var hnums = document.querySelectorAll('.th-num');
+for (var i = 0; i < hnums.length; i++) {
+  (function(inp) {
+    inp.addEventListener('focus', function() { setTimeout(function(){ inp.select(); }, 0); });
+  })(hnums[i]);
+}
+
+// ADD button
+document.getElementById('btn-add').addEventListener('click', function() {
+  var inp = document.getElementById('new-name');
+  var n = inp.value.trim();
+  if (!n) { inp.focus(); return; }
+  addRow(n, null, false);
+  inp.value = '';
+  // scroll to bottom of card
+  var card = document.querySelector('.card');
+  card.scrollTop = card.scrollHeight;
+});
+document.getElementById('new-name').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') document.getElementById('btn-add').click();
+});
+
+// RESET
+document.getElementById('btn-reset').addEventListener('click', function() {
+  var nums = document.querySelectorAll('.th-num');
+  var def_nums = ['24','25','26','27','28','29'];
+  for (var i = 0; i < nums.length; i++) nums[i].value = def_nums[i];
+  buildDefault();
+});
+
+// GENERATE IMAGE
+document.getElementById('btn-gen').addEventListener('click', function() {
+  try {
+    // Headers
+    var days = document.querySelectorAll('.th-day');
+    var nums = document.querySelectorAll('.th-num');
+    var wkThs = document.querySelectorAll('thead th');
+    var hDays = [], hNums = [], wkF = [];
+    for (var i = 0; i < days.length; i++) {
+      hDays.push(days[i].textContent.toUpperCase());
+      hNums.push(nums[i].value);
+      wkF.push(wkThs[i+1].classList.contains('wk'));
+    }
+
+    // Rows
+    var bRows = document.querySelectorAll('tbody tr');
+    var rowData = [];
+    for (var ri = 0; ri < bRows.length; ri++) {
+      var nameInp = bRows[ri].querySelector('.nc input');
+      var tds = bRows[ri].querySelectorAll('td:not(.nc):not(.rm-cell)');
+      var cells = [];
+      for (var ci = 0; ci < tds.length; ci++) {
+        var v = tds[ci].querySelector('input').value || '—';
+        cells.push({ val: v, bg: BG[tds[ci].className] || '#fff' });
+      }
+      rowData.push({ name: nameInp ? nameInp.value : '', cells: cells });
+    }
+
+    var S = 2, C0 = 140, CW = 138, HH = 68, RH = 65, PAD = 16;
+    var W = PAD*2 + C0 + hDays.length * CW;
+    var H = PAD*2 + HH + rowData.length * RH;
+
+    var cv = document.createElement('canvas');
+    cv.width  = W * S;
+    cv.height = H * S;
+    var ctx = cv.getContext('2d');
+    ctx.scale(S, S);
+
+    ctx.fillStyle = '#fff';
+    ctx.fillRect(0, 0, W, H);
+
+    var ox = PAD, oy = PAD, BW2 = 2;
+    function dc(x,y,w,h,bg) {
+      ctx.fillStyle = bg;
+      ctx.fillRect(x,y,w,h);
+      ctx.strokeStyle = '#444';
+      ctx.lineWidth = BW2;
+      ctx.strokeRect(x+BW2/2, y+BW2/2, w-BW2, h-BW2);
+    }
+
+    // Header col 0
+    dc(ox, oy, C0, HH, '#fff');
+    ctx.fillStyle = '#111'; ctx.font = '900 13px Arial';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText('Dipendente', ox+C0/2, oy+HH/2);
+
+    for (var i = 0; i < hDays.length; i++) {
+      var x = ox + C0 + i*CW;
+      dc(x, oy, CW, HH, wkF[i] ? '#7dc87d' : '#fff');
+      ctx.fillStyle='#333'; ctx.font='900 11px Arial';
+      ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.fillText(hDays[i], x+CW/2, oy+HH*0.28);
+      ctx.fillStyle='#111'; ctx.font='900 26px Arial';
+      ctx.fillText(hNums[i], x+CW/2, oy+HH*0.70);
+    }
+
+    for (var ri = 0; ri < rowData.length; ri++) {
+      var y = oy + HH + ri*RH;
+      dc(ox, y, C0, RH, '#fff');
+      ctx.fillStyle='#111'; ctx.font='900 18px Arial';
+      ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.fillText(rowData[ri].name, ox+C0/2, y+RH/2);
+      for (var ci = 0; ci < rowData[ri].cells.length; ci++) {
+        var c = rowData[ri].cells[ci];
+        var cx = ox + C0 + ci*CW;
+        dc(cx, y, CW, RH, c.bg);
+        ctx.fillStyle='#111'; ctx.font='900 21px Arial';
+        ctx.textAlign='center'; ctx.textBaseline='middle';
+        ctx.fillText(c.val, cx+CW/2, y+RH/2);
+      }
+    }
+
+    var url = cv.toDataURL('image/jpeg', 0.97);
+    document.getElementById('pv-img').src = url;
+    document.getElementById('pv-dl').href = url;
+    document.getElementById('pv').classList.add('show');
+
+  } catch(e) { alert('Errore: ' + e.message); }
+});
+
+document.getElementById('pv-close').addEventListener('click', function() {
+  document.getElementById('pv').classList.remove('show');
+});
+</script>
+</body>
+</html>
