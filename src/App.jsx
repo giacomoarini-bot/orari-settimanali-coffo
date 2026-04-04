@@ -103,16 +103,27 @@ export default function App() {
     const target = document.getElementById('schedule-export-target');
     if (!target) return;
     
-    // Temporarily remove overflow to prevent clipping on mobile view
-    const originalOverflowX = target.style.overflowX;
-    target.style.overflowX = 'visible';
+    // Save original styles
+    const originalStyle = {
+      width: target.style.width,
+      overflow: target.style.overflow,
+      position: target.style.position,
+    };
     
+    // Force element to stretch to its full content width.
+    target.style.width = 'max-content';
+    target.style.overflow = 'visible';
+    target.style.position = 'relative';
+
     html2canvas(target, {
       scale: 2, // High quality
       backgroundColor: '#ffffff',
-      windowWidth: target.scrollWidth // ensure html2canvas measures full scroll width
+      windowWidth: target.scrollWidth + 100 // ensure enough window width context
     }).then((canvas) => {
-      target.style.overflowX = originalOverflowX; // restore
+      // Restore styles
+      target.style.width = originalStyle.width;
+      target.style.overflow = originalStyle.overflow;
+      target.style.position = originalStyle.position;
       
       const dataUrl = canvas.toDataURL("image/jpeg", 0.9);
       const link = document.createElement('a');
@@ -120,7 +131,9 @@ export default function App() {
       link.href = dataUrl;
       link.click();
     }).catch(err => {
-      target.style.overflowX = originalOverflowX;
+      target.style.width = originalStyle.width;
+      target.style.overflow = originalStyle.overflow;
+      target.style.position = originalStyle.position;
       console.error(err);
     });
   };
