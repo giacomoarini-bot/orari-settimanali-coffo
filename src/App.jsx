@@ -103,15 +103,25 @@ export default function App() {
     const target = document.getElementById('schedule-export-target');
     if (!target) return;
     
+    // Temporarily remove overflow to prevent clipping on mobile view
+    const originalOverflowX = target.style.overflowX;
+    target.style.overflowX = 'visible';
+    
     html2canvas(target, {
       scale: 2, // High quality
-      backgroundColor: '#ffffff'
+      backgroundColor: '#ffffff',
+      windowWidth: target.scrollWidth // ensure html2canvas measures full scroll width
     }).then((canvas) => {
+      target.style.overflowX = originalOverflowX; // restore
+      
       const dataUrl = canvas.toDataURL("image/jpeg", 0.9);
       const link = document.createElement('a');
       link.download = `orari_settimana_${currentWeekMonday}.jpg`;
       link.href = dataUrl;
       link.click();
+    }).catch(err => {
+      target.style.overflowX = originalOverflowX;
+      console.error(err);
     });
   };
 
