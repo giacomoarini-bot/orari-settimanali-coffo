@@ -125,7 +125,38 @@ export default function App() {
       target.style.overflow = originalStyle.overflow;
       target.style.position = originalStyle.position;
       
-      const dataUrl = canvas.toDataURL("image/jpeg", 0.9);
+      const width = canvas.width;
+      const height = canvas.height;
+      
+      let newWidth, newHeight;
+      const targetRatio = 16 / 9;
+      const currentRatio = width / height;
+      
+      if (currentRatio > targetRatio) {
+        // Image is wider than 16:9. Pad vertical.
+        newWidth = width;
+        newHeight = width / targetRatio;
+      } else {
+        // Image is taller than 16:9. Pad horizontal.
+        newHeight = height;
+        newWidth = height * targetRatio;
+      }
+      
+      const finalCanvas = document.createElement('canvas');
+      finalCanvas.width = newWidth;
+      finalCanvas.height = newHeight;
+      
+      const ctx = finalCanvas.getContext('2d');
+      // Fill background
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, newWidth, newHeight);
+      
+      // Draw original canvas in the center
+      const offsetX = (newWidth - width) / 2;
+      const offsetY = (newHeight - height) / 2;
+      ctx.drawImage(canvas, offsetX, offsetY);
+      
+      const dataUrl = finalCanvas.toDataURL("image/jpeg", 0.95);
       const link = document.createElement('a');
       link.download = `orari_settimana_${currentWeekMonday}.jpg`;
       link.href = dataUrl;
