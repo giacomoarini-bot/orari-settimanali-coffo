@@ -2,12 +2,28 @@ import React, { useState, useEffect } from 'react';
 import html2canvas from 'html2canvas';
 import ScheduleTable from './components/ScheduleTable';
 
+// Helper to format Date into local 'YYYY-MM-DD'
+function formatLocalDate(d) {
+  const yyyy = d.getFullYear();
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const dd = String(d.getDate()).padStart(2, '0');
+  return `${yyyy}-${mm}-${dd}`;
+}
+
+// Helper to parse 'YYYY-MM-DD' into local Date
+function parseLocalDate(dateStr) {
+  if (!dateStr) return new Date();
+  const parts = dateStr.split('-');
+  return new Date(parts[0], parts[1] - 1, parts[2]);
+}
+
 // Helper to get the Monday of a given date's week
 function getMonday(d) {
   const dt = new Date(d);
   const day = dt.getDay();
   const diff = dt.getDate() - day + (day === 0 ? -6 : 1); // adjust when day is sunday
-  return new Date(dt.setDate(diff)).toISOString().split('T')[0];
+  dt.setDate(diff);
+  return formatLocalDate(dt);
 }
 
 const DEFAULT_EMPLOYEES = [
@@ -42,9 +58,9 @@ export default function App() {
   };
 
   const handleNextWeek = () => {
-    const d = new Date(currentWeekMonday);
+    const d = parseLocalDate(currentWeekMonday);
     d.setDate(d.getDate() + 7);
-    const nextMonday = d.toISOString().split('T')[0];
+    const nextMonday = formatLocalDate(d);
     
     // If the next week isn't defined, create it empty but carry over names
     if (!weeksData[nextMonday]) {
@@ -61,9 +77,9 @@ export default function App() {
   };
 
   const handlePrevWeek = () => {
-    const d = new Date(currentWeekMonday);
+    const d = parseLocalDate(currentWeekMonday);
     d.setDate(d.getDate() - 7);
-    setCurrentWeekMonday(d.toISOString().split('T')[0]);
+    setCurrentWeekMonday(formatLocalDate(d));
   };
 
   const handleCurrentWeek = () => {
@@ -120,8 +136,8 @@ export default function App() {
   };
 
   // formatting the display title
-  const startDateDisp = new Date(currentWeekMonday).toLocaleDateString('it-IT', { day: 'numeric', month: 'long' });
-  const d = new Date(currentWeekMonday);
+  const startDateDisp = parseLocalDate(currentWeekMonday).toLocaleDateString('it-IT', { day: 'numeric', month: 'long' });
+  const d = parseLocalDate(currentWeekMonday);
   d.setDate(d.getDate() + 6); // End of week (Sunday)
   const endDateDisp = d.toLocaleDateString('it-IT', { day: 'numeric', month: 'long' });
 
@@ -154,7 +170,7 @@ export default function App() {
 
       <ScheduleTable 
         employees={activeEmployees}
-        currentDate={new Date(currentWeekMonday)}
+        currentDate={parseLocalDate(currentWeekMonday)}
         addEmployee={handleAddEmployee}
         removeEmployee={handleRemoveEmployee}
         updateEmployeeName={handleUpdateEmployeeName}
